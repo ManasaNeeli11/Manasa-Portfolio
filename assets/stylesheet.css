@@ -259,19 +259,19 @@ body {
     width: min(80vw, 250px);
     aspect-ratio: 1 / 1;
     margin: 0 auto;
-    overflow: hidden;
     background: transparent;
 }
 
 .about-img::before {
     content: '';
     position: absolute;
-    top: -5px;
-    left: -5px;
-    right: -5px;
-    bottom: -5px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: linear-gradient(45deg, #0ef, #ff00ff, #00ffff, #0ef);
-    clip-path: circle(50% at 50% 50%);
+    clip-path: circle(52% at 50% 50%);
+    transform: scale(1.04);
     z-index: 1;
 }
 
@@ -282,6 +282,7 @@ body {
     object-fit: cover;
     position: relative;
     z-index: 2;
+    border: 2px solid transparent;
 }
 
 .about-text {
@@ -879,10 +880,12 @@ progress::-webkit-progress-value {
     }
 
     .about-img::before {
-        top: -4px;
-        left: -4px;
-        right: -4px;
-        bottom: -4px;
+        clip-path: circle(52% at 50% 50%);
+        transform: scale(1.03);
+    }
+
+    .about-img img {
+        border: 1.5px solid transparent;
     }
 }
 
@@ -951,10 +954,12 @@ progress::-webkit-progress-value {
     }
 
     .about-img::before {
-        top: -3px;
-        left: -3px;
-        right: -3px;
-        bottom: -3px;
+        clip-path: circle(52% at 50% 50%);
+        transform: scale(1.02);
+    }
+
+    .about-img img {
+        border: 1px solid transparent;
     }
 }
 

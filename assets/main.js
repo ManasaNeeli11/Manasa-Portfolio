@@ -1,3 +1,4 @@
+// Typed.js animation
 var typed = new Typed(".text", {
     strings: ["Web Developer", "Figma Designer", "YouTuber", "Content Writer"],
     typeSpeed: 100,
@@ -6,14 +7,17 @@ var typed = new Typed(".text", {
     loop: true
 });
 
+// Toggle mobile menu
 function toggleMenu() {
     const navbar = document.querySelector(".navbar");
     navbar.classList.toggle("active");
 }
 
+// Section navigation
 document.addEventListener('DOMContentLoaded', function() {
     const sections = document.querySelectorAll('section');
     const navLinks = document.querySelectorAll('.navbar a');
+    const contactContainer = document.querySelector('.contact-container');
 
     // Show Home section by default
     sections.forEach(section => {
@@ -31,14 +35,29 @@ document.addEventListener('DOMContentLoaded', function() {
             const targetSection = targetId ? document.getElementById(targetId) : document.querySelector('.home');
 
             // Hide all sections
-            sections.forEach(section => {
-                section.classList.add('hidden');
-            });
+            sections.forEach(section => section.classList.add('hidden'));
 
-            // Show the target section
+            // Show target section
             if (targetSection) {
                 targetSection.classList.remove('hidden');
                 targetSection.scrollIntoView({ behavior: 'smooth' });
+
+                // Add .visible class for Contact section
+                if (targetId === 'Contact' && contactContainer) {
+                    contactContainer.classList.remove('visible');
+                    void contactContainer.offsetWidth; // Trigger reflow
+                    setTimeout(() => contactContainer.classList.add('visible'), 50);
+                }
+
+                // Trigger timeline animations for Education section
+                if (targetId === 'education') {
+                    const timelineItems = document.querySelectorAll('.timeline-item');
+                    timelineItems.forEach((item, index) => {
+                        setTimeout(() => {
+                            item.classList.add('visible');
+                        }, index * 200);
+                    });
+                }
             }
 
             // Update active link
@@ -51,8 +70,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Touch ripple effect
 document.addEventListener('touchstart', function(event) {
-    if (!event.target.closest('button') && !event.target.closest('.btn-box') && !event.target.closest('.control-btn') && !event.target.closest('.contact-button')) {
+    if (!event.target.closest('button') &&
+        !event.target.closest('.btn-box') &&
+        !event.target.closest('.control-btn') &&
+        !event.target.closest('.contact-button')) {
+        
         const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
         const touch = event.touches[0];
         const ripple = document.createElement('div');
@@ -61,12 +85,11 @@ document.addEventListener('touchstart', function(event) {
         ripple.style.top = `${touch.clientY}px`;
         ripple.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
         document.body.appendChild(ripple);
-        setTimeout(() => {
-            ripple.remove();
-        }, 600);
+        setTimeout(() => ripple.remove(), 600);
     }
 });
 
+// Certificates slider
 document.addEventListener('DOMContentLoaded', function() {
     const wrappers = document.querySelectorAll('.certificate-wrapper');
     const prevBtn = document.getElementById('prev-btn');
@@ -74,40 +97,62 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentIndex = 0;
 
     function showCertificate(index) {
-        wrappers.forEach(wrapper => wrapper.classList.remove('active'));
+        wrappers.forEach(wrapper => {
+            wrapper.classList.remove('active');
+            wrapper.style.transform = 'rotateY(-90deg)';
+            wrapper.style.opacity = '0';
+        });
         wrappers[index].classList.add('active');
-        prevBtn.disabled = index === 0;
-        nextBtn.disabled = index === wrappers.length - 1;
+        wrappers[index].style.transform = 'rotateY(0deg)';
+        wrappers[index].style.opacity = '1';
+        if (prevBtn) prevBtn.disabled = index === 0;
+        if (nextBtn) nextBtn.disabled = index === wrappers.length - 1;
     }
 
-    prevBtn.addEventListener('click', () => {
-        if (currentIndex > 0) {
-            currentIndex--;
+    // Event listener for clicking certificate image to show the next certificate
+    wrappers.forEach(wrapper => {
+        const img = wrapper.querySelector('.certificate-img');
+        img.addEventListener('click', () => {
+            currentIndex = (currentIndex < wrappers.length - 1) ? currentIndex + 1 : 0;
             showCertificate(currentIndex);
-        }
+        });
     });
 
-    nextBtn.addEventListener('click', () => {
-        if (currentIndex < wrappers.length - 1) {
-            currentIndex++;
-            showCertificate(currentIndex);
-        }
-    });
+    // Previous and Next button event listeners
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                showCertificate(currentIndex);
+            }
+        });
+    }
 
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            if (currentIndex < wrappers.length - 1) {
+                currentIndex++;
+                showCertificate(currentIndex);
+            }
+        });
+    }
+
+    // Adjust certificate size
     function adjustCertificateSize() {
         const activeWrapper = document.querySelector('.certificate-wrapper.active');
         if (activeWrapper) {
-            const img = activeWrapper.querySelector('img');
-            if (img) {
+            const img = activeWrapper.querySelector('.certificate-img');
+            if (img && img.complete) {
                 const card = activeWrapper.querySelector('.certificate-card');
-                card.style.minHeight = `${img.naturalHeight + 30}px`;
+                card.style.height = 'auto';
+                card.style.minHeight = `${img.clientHeight + 30}px`;
             }
         }
     }
 
     window.addEventListener('resize', adjustCertificateSize);
     wrappers.forEach(wrapper => {
-        const img = wrapper.querySelector('img');
+        const img = wrapper.querySelector('.certificate-img');
         if (img.complete) {
             adjustCertificateSize();
         } else {
@@ -118,28 +163,19 @@ document.addEventListener('DOMContentLoaded', function() {
     showCertificate(currentIndex);
 });
 
+// Contact section animations
 document.addEventListener('DOMContentLoaded', function() {
     const contactSection = document.querySelector('.contact-section');
     const contactContainer = document.querySelector('.contact-container');
     
-    setTimeout(() => {
-        contactContainer.classList.add('visible');
-    }, 300);
+    const observerOptions = { root: null, rootMargin: '0px', threshold: 0.2 };
     
-    const observerOptions = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.2
-    };
-    
-    const observer = new IntersectionObserver((entries, observer) => {
+    const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 contactContainer.classList.remove('visible');
-                void contactContainer.offsetWidth;
-                setTimeout(() => {
-                    contactContainer.classList.add('visible');
-                }, 50);
+                void contactContainer.offsetWidth; // Trigger reflow
+                setTimeout(() => contactContainer.classList.add('visible'), 50);
                 createBorderParticles();
             }
         });
@@ -162,12 +198,33 @@ document.addEventListener('DOMContentLoaded', function() {
             particlesContainer.appendChild(particle);
         }
         
-        setTimeout(() => {
-            particlesContainer.remove();
-        }, 3000);
+        setTimeout(() => particlesContainer.remove(), 3000);
     }
 });
 
+// Education section animations
+document.addEventListener('DOMContentLoaded', function() {
+    const educationSection = document.querySelector('.education');
+    const timelineItems = document.querySelectorAll('.timeline-item');
+
+    const observerOptions = { root: null, rootMargin: '0px', threshold: 0.2 };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                timelineItems.forEach((item, index) => {
+                    setTimeout(() => {
+                        item.classList.add('visible');
+                    }, index * 200);
+                });
+            }
+        });
+    }, observerOptions);
+
+    observer.observe(educationSection);
+});
+
+// Navbar hover colors
 document.querySelectorAll('.navbar a').forEach(link => {
     link.addEventListener('mouseover', () => {
         const colors = ['#0ef', '#ff00ff', '#00ffff'];
@@ -175,9 +232,46 @@ document.querySelectorAll('.navbar a').forEach(link => {
         link.style.color = randomColor;
         link.style.textShadow = `0 0 10px ${randomColor}`;
     });
-    
     link.addEventListener('mouseout', () => {
         link.style.color = '#fff';
         link.style.textShadow = 'none';
     });
 });
+
+// EmailJS integration
+(function(){
+    emailjs.init("Il0mbepftRu7ZWlax");
+})();
+
+function sendEmail() {
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const message = document.getElementById('message').value;
+    const formMessage = document.getElementById('form-message');
+
+    if (!name || !email || !message) {
+        formMessage.textContent = '⚠️ Please fill out all fields.';
+        formMessage.classList.add('error');
+        return;
+    }
+
+    const serviceID = 'service_jjhl60g';
+    const templateID = 'template_zn5aci3';
+
+    emailjs.send(serviceID, templateID, {
+        from_name: name,
+        from_email: email,
+        message: message
+    })
+    .then(() => {
+        formMessage.textContent = '✅ Message sent successfully!';
+        formMessage.classList.remove('error');
+        document.getElementById('name').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('message').value = '';
+    }, (error) => {
+        formMessage.textContent = '❌ Failed to send message. Please try again.';
+        formMessage.classList.add('error');
+        console.error('EmailJS error:', error);
+    });
+}
